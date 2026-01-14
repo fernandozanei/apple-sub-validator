@@ -25,24 +25,44 @@ echo ""
 echo "Installing dependencies..."
 echo ""
 
-$PYTHON_CMD -m pip install PyJWT[crypto]==2.8.0 cryptography==41.0.7 requests==2.31.0
+$PYTHON_CMD -m pip install -r requirements.txt
 
-if [ $? -eq 0 ]; then
-    echo ""
-    echo "=========================================="
-    echo "✓ Setup Complete!"
-    echo "=========================================="
-    echo ""
-    echo "You can now run:"
-    echo "  $PYTHON_CMD validate_from_file.py receipt.txt 'your_secret'"
-    echo "  $PYTHON_CMD interactive_validator.py"
-    echo ""
-else
+if [ $? -ne 0 ]; then
     echo ""
     echo "❌ Installation failed!"
     echo "Try running manually:"
-    echo "  pip install PyJWT[crypto] cryptography requests"
+    echo "  pip install -r requirements.txt"
     echo "Or:"
-    echo "  pip3 install PyJWT[crypto] cryptography requests"
+    echo "  pip3 install -r requirements.txt"
     exit 1
 fi
+
+echo ""
+echo "✓ Dependencies installed"
+echo ""
+
+# Setup .env file
+if [ ! -f .env ]; then
+    echo "Creating .env file from template..."
+    cp .env.example .env
+    echo "✓ Created .env file"
+    echo ""
+    echo "⚠️  IMPORTANT: Edit .env file and add your Apple credentials:"
+    echo "   - APPLE_SHARED_SECRET (for legacy receipt validation)"
+    echo "   - APPLE_API_KEY, APPLE_KEY_ID, APPLE_ISSUER_ID (for new transaction API)"
+    echo ""
+else
+    echo "✓ .env file already exists"
+    echo ""
+fi
+
+echo "=========================================="
+echo "✓ Setup Complete!"
+echo "=========================================="
+echo ""
+echo "Next steps:"
+echo "  1. Edit .env file with your Apple credentials"
+echo "  2. Run the validator:"
+echo "     $PYTHON_CMD validate_from_file.py receipt.txt"
+echo "     $PYTHON_CMD interactive_validator.py"
+echo ""

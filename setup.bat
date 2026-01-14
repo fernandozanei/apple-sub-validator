@@ -24,25 +24,40 @@ REM Install dependencies
 echo Installing dependencies...
 echo.
 
-python -m pip install PyJWT[crypto]==2.8.0 cryptography==41.0.7 requests==2.31.0
+python -m pip install -r requirements.txt
 
-if %errorlevel% equ 0 (
-    echo.
-    echo ==========================================
-    echo Setup Complete!
-    echo ==========================================
-    echo.
-    echo You can now run:
-    echo   python validate_from_file.py receipt.txt "your_secret"
-    echo   python interactive_validator.py
-    echo.
-) else (
+if %errorlevel% neq 0 (
     echo.
     echo Installation failed!
     echo Try running manually:
-    echo   pip install PyJWT[crypto] cryptography requests
+    echo   pip install -r requirements.txt
     pause
     exit /b 1
 )
+
+REM Create .env file from template if it doesn't exist
+echo.
+if not exist .env (
+    echo Creating .env file from template...
+    copy .env.example .env >nul
+    echo Created .env file
+    echo.
+    echo IMPORTANT: Edit .env file and add your Apple credentials
+    echo.
+) else (
+    echo .env file already exists
+    echo.
+)
+
+echo ==========================================
+echo Setup Complete!
+echo ==========================================
+echo.
+echo Next steps:
+echo 1. Edit .env file with your Apple credentials
+echo 2. Run the validator:
+echo    python validate_from_file.py receipt.txt "your_secret"
+echo    python interactive_validator.py
+echo.
 
 pause

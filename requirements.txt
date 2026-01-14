@@ -1,0 +1,17 @@
+# Apple Subscription Validator Dependencies
+
+# JWT token encoding/decoding with cryptographic signature support
+# Used for: Generating auth tokens for Apple API, decoding/verifying JWS tokens
+PyJWT[crypto]==2.8.0
+
+# Cryptographic operations (certificate handling, signature verification)
+# Used for: Loading X.509 certificates, extracting public keys, ES256 signature verification
+cryptography==41.0.7
+
+# HTTP client for making API requests to Apple's servers
+# Used for: verifyReceipt API, App Store Server API endpoints
+requests==2.31.0
+
+# Load environment variables from .env files
+# Used for: Reading Apple credentials (shared secret, API keys) securely
+python-dotenv==1.0.0

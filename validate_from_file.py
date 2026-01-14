@@ -9,14 +9,14 @@ import os
 from apple_subscription_validator import AppleSubscriptionValidator
 
 
-def validate_from_file(filepath: str, shared_secret: str = None, sandbox: bool = True):
+def validate_from_file(filepath: str, shared_secret: str = None, sandbox: bool = None):
     """
     Validate receipt or token from a file
-    
+
     Args:
         filepath: Path to file containing receipt or token
-        shared_secret: Shared secret for receipt validation
-        sandbox: Whether to use sandbox environment
+        shared_secret: Shared secret for receipt validation (falls back to .env)
+        sandbox: Whether to use sandbox environment (falls back to .env)
     """
     print(f"Reading from file: {filepath}")
     
@@ -32,11 +32,14 @@ def validate_from_file(filepath: str, shared_secret: str = None, sandbox: bool =
     
     # Create validator
     validator = AppleSubscriptionValidator(shared_secret=shared_secret, sandbox=sandbox)
-    
+
     # Detect type and validate
     if content.startswith('eyJ'):
         print("Detected: JWS Token")
         validator.decode_jws_token(content)
+    elif content.isdigit():
+        print("Detected: Transaction ID")
+        validator.get_transaction_info(content)
     else:
         print("Detected: Base64 Receipt")
         validator.validate_base64_receipt(content)
@@ -53,20 +56,26 @@ def main():
         print("  python validate_from_file.py receipt.txt")
         print("  python validate_from_file.py receipt.txt 'your_shared_secret'")
         print("  python validate_from_file.py jws_token.txt --production")
+        print("  python validate_from_file.py transaction_id.txt")
         print("\nFile format:")
-        print("  - Create a text file containing only your base64 receipt or JWS token")
+        print("  - Create a text file containing only:")
+        print("    * Base64 receipt string")
+        print("    * JWS token (starts with 'eyJ')")
+        print("    * Transaction ID (numeric)")
         print("  - No extra spaces or newlines")
-        print("  - Just paste the string and save")
+        print("  - Just paste the string/number and save")
         sys.exit(1)
     
     filepath = sys.argv[1]
     shared_secret = None
-    sandbox = True
-    
+    sandbox = None  # Will use .env default
+
     # Parse arguments
     for arg in sys.argv[2:]:
         if arg == '--production':
             sandbox = False
+        elif arg == '--sandbox':
+            sandbox = True
         elif not arg.startswith('--'):
             shared_secret = arg
     
